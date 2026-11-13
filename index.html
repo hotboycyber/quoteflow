@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuoteFlow — Lead & Quote Desk</title>
+<style>
+:root{--bg:#f4f6f8;--panel:#fff;--ink:#17202b;--muted:#687585;--line:#e5e9ee;--nav:#101923;--blue:#315efb;--blue2:#edf1ff;--green:#16865b;--amber:#a86609;--red:#b53a42;--shadow:0 8px 30px rgba(20,35,55,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}
+button,input,select,textarea{font:inherit}button{cursor:pointer}
+.app{min-height:100vh;display:grid;grid-template-columns:238px 1fr}
+.sidebar{background:var(--nav);color:#e9eef5;padding:24px 16px;display:flex;flex-direction:column;gap:28px}
+.brand{font-size:21px;font-weight:800;letter-spacing:-.7px;padding:0 10px}.brand span{color:#86a0ff}
+.subbrand{font-size:11px;color:#93a0ae;letter-spacing:1.4px;margin:4px 10px 0}
+.nav{display:grid;gap:6px}.nav button{border:0;background:transparent;color:#b8c2cf;text-align:left;padding:11px 12px;border-radius:9px;font-weight:600}
+.nav button.active,.nav button:hover{background:#202d3b;color:#fff}
+.side-note{margin-top:auto;border:1px solid #2a3949;border-radius:12px;padding:13px;color:#aeb9c7;font-size:12px}
+.main{padding:28px 34px;max-width:1500px;width:100%;margin:0 auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px}
+.eyebrow{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:1.4px;text-transform:uppercase}
+h1{font-size:27px;letter-spacing:-.8px;margin:4px 0 0}
+.actions{display:flex;gap:9px;align-items:center}
+.btn{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:9px;font-weight:700;color:var(--ink)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn:hover{filter:brightness(.97)}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.metric,.panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;box-shadow:var(--shadow)}
+.metric{padding:17px}.metric .label{color:var(--muted);font-size:12px;font-weight:650}.metric .value{font-size:27px;font-weight:800;letter-spacing:-.8px;margin-top:7px}.metric .hint{font-size:11px;color:var(--muted);margin-top:3px}
+.columns{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.85fr);gap:16px}
+.panel{padding:18px;margin-bottom:16px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}
+h2{font-size:15px;margin:0;letter-spacing:-.2px}.muted{color:var(--muted)}.small{font-size:12px}
+table{width:100%;border-collapse:collapse}th{text-align:left;color:var(--muted);font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:9px 8px;border-bottom:1px solid var(--line)}
+td{padding:12px 8px;border-bottom:1px solid #eff1f4;vertical-align:middle}tr:last-child td{border-bottom:0}
+.pill{display:inline-flex;padding:4px 8px;border-radius:20px;font-size:11px;font-weight:750;background:#f0f2f5;color:#5d6875}.pill.new{background:#edf1ff;color:#315efb}.pill.quote{background:#fff4df;color:#98600c}.pill.won{background:#e7f6ef;color:#16865b}.pill.lost{background:#fdebed;color:#b53a42}
+.row-actions{display:flex;gap:6px}.linkbtn{border:0;background:none;color:var(--blue);font-weight:700;padding:3px}
+.task{display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.task:last-child{border:0}.dot{width:8px;height:8px;border-radius:50%;background:#e5a32b;margin-top:6px;flex:none}.dot.late{background:#d34d55}.task strong{display:block;font-size:12px}.task span{font-size:11px;color:var(--muted)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.view{display:none}.view.active{display:block}
+.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:13px}
+.search{border:1px solid var(--line);border-radius:9px;background:#fff;padding:10px 12px;min-width:220px}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:grid;gap:5px}.field.full{grid-column:1/-1}.field label{font-size:11px;font-weight:750;color:#586575}.field input,.field select,.field textarea{width:100%;padding:10px 11px;border:1px solid #dce2e9;border-radius:8px;background:#fff;outline:none}.field textarea{min-height:75px;resize:vertical}
+.modalback{position:fixed;inset:0;background:#10192388;display:none;align-items:center;justify-content:center;padding:18px;z-index:10}.modalback.show{display:flex}.modal{width:min(620px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:15px;padding:22px;box-shadow:0 20px 80px #0003}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.close{border:0;background:#f1f3f6;border-radius:8px;padding:7px 10px}
+.notice{background:#fff8e9;border:1px solid #f2dfb9;color:#765017;border-radius:10px;padding:12px;font-size:12px;margin-bottom:16px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.kpi-bar{height:8px;border-radius:20px;background:#edf0f4;overflow:hidden;margin-top:8px}.kpi-bar span{display:block;height:100%;background:var(--blue)}
+footer{color:#8993a0;font-size:11px;padding:10px 2px}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{padding:13px;gap:12px}.nav{grid-template-columns:repeat(4,1fr)}.nav button{text-align:center;padding:9px 4px;font-size:12px}.side-note{display:none}.main{padding:20px 14px}.metrics{grid-template-columns:repeat(2,1fr)}.columns{grid-template-columns:1fr}}
+@media(max-width:560px){.top{align-items:flex-start;flex-direction:column}.actions{width:100%}.actions .btn{flex:1}.formgrid,.settings-grid{grid-template-columns:1fr}.field.full{grid-column:auto}table{font-size:12px}th:nth-child(3),td:nth-child(3){display:none}}
+
+/* QUOTEFLOW BRAND SYSTEM — evergreen, warm paper, signal-lime */
+:root{--bg:#f3f3ed;--panel:#fffefa;--ink:#17251f;--muted:#66736c;--line:#e2e7df;--nav:#12251f;--blue:#b9e86b;--blue2:#eff8dc;--green:#287451;--amber:#9b6418;--red:#b94b4b;--shadow:0 10px 30px rgba(23,37,31,.055);--lime:#c8ef79;--deep:#12251f}
+body{background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;letter-spacing:-.01em}
+.app{grid-template-columns:252px 1fr}
+.sidebar{background:var(--deep);color:#f4f6ef;padding:27px 17px 20px;gap:31px;position:relative;overflow:hidden}
+.sidebar:after{content:"";position:absolute;width:230px;height:230px;border:1px solid rgba(200,239,121,.09);border-radius:50%;right:-155px;top:180px;box-shadow:0 0 0 25px rgba(200,239,121,.025),0 0 0 55px rgba(200,239,121,.02);pointer-events:none}
+.brand-lockup{display:flex;align-items:center;gap:11px;padding:0 9px}
+.brand-mark{width:34px;height:34px;border-radius:11px;background:var(--lime);display:flex;align-items:flex-end;justify-content:center;gap:3px;padding:8px;box-shadow:0 5px 18px rgba(200,239,121,.18);transform:rotate(-4deg)}
+.brand-mark span{display:block;width:4px;border-radius:4px;background:#183025}.brand-mark span:nth-child(1){height:9px}.brand-mark span:nth-child(2){height:15px}.brand-mark span:nth-child(3){height:11px}
+.brand{font-size:21px;font-weight:820;letter-spacing:-1.1px;padding:0;color:#f4f6ef;line-height:1}.brand span{color:var(--lime)}
+.subbrand{font-size:9px;color:#9eafa4;letter-spacing:1.25px;margin:6px 0 0;font-weight:750}
+.nav{gap:7px}.nav button{color:#aebdb4;padding:12px 13px;border-radius:10px;font-size:13px;position:relative;transition:background .22s ease,color .22s ease,transform .22s ease}
+.nav button:before{content:"";width:3px;height:0;position:absolute;left:0;top:50%;transform:translateY(-50%);background:var(--lime);border-radius:4px;transition:height .22s ease}
+.nav button.active,.nav button:hover{background:#21382e;color:#f7faef;transform:translateX(2px)}.nav button.active:before{height:20px}
+.side-note{background:rgba(255,255,255,.035);border:1px solid rgba(221,239,223,.13);border-radius:12px;padding:14px;color:#aebdb4;line-height:1.6;position:relative;z-index:1}.side-note b{color:#e9f3e7;display:block;margin-bottom:3px}
+.main{padding:34px 42px;max-width:1540px}
+.top{margin-bottom:23px;align-items:flex-end}.eyebrow{font-size:10px;color:#78857c;letter-spacing:1.55px;font-weight:800}.crumb{color:#a1aaa2}
+h1{font-family:Georgia,"Times New Roman",serif;font-size:39px;letter-spacing:-1.35px;font-weight:500;margin:6px 0 0;line-height:1.06}.heading-period{color:#83ad43}.page-subtitle{color:#6c786f;font-size:13px;margin:9px 0 0;letter-spacing:0}
+.actions{gap:10px}.btn{background:#fffefa;border:1px solid #dfe5dc;padding:10px 15px;border-radius:10px;font-size:12px;font-weight:750;color:#26372e;box-shadow:0 2px 5px rgba(20,40,28,.025);transition:transform .2s ease,box-shadow .2s ease,background .2s ease,border-color .2s ease}.btn:hover{filter:none;transform:translateY(-2px);box-shadow:0 7px 16px rgba(20,40,28,.09);border-color:#cbd8c5}.btn:active{transform:translateY(0) scale(.985)}.btn.primary{background:var(--lime);border-color:var(--lime);color:#1b2b20;box-shadow:0 5px 13px rgba(139,183,68,.17)}.btn.primary:hover{background:#d3f58c;border-color:#d3f58c}.plus{font-size:17px;line-height:10px;vertical-align:-1px;margin-right:3px}
+.welcome-strip{min-height:170px;border-radius:17px;background:#183329;position:relative;overflow:hidden;display:flex;align-items:center;padding:24px 29px;color:#f3f7ee;margin:0 0 18px;box-shadow:0 13px 28px rgba(18,37,31,.12)}
+.welcome-strip:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 78% 48%,rgba(185,232,107,.16),transparent 29%),linear-gradient(105deg,rgba(255,255,255,.025),transparent 58%);pointer-events:none}
+.welcome-copy{display:flex;flex-direction:column;position:relative;z-index:1}.welcome-kicker{font-size:9px;letter-spacing:1.7px;font-weight:850;color:#c8ef79;margin-bottom:9px}.welcome-copy strong{font-family:Georgia,"Times New Roman",serif;font-size:27px;line-height:1.06;letter-spacing:-.5px;font-weight:500}.welcome-copy em{font-weight:500;color:#c8ef79}.welcome-note{font-size:11px;color:#c1d0c5;margin-top:11px}.welcome-side{position:absolute;right:25px;bottom:19px;font-size:9px;letter-spacing:1.2px;font-weight:800;color:#d0ddcf;display:flex;align-items:center;gap:7px}.live-dot{width:6px;height:6px;border-radius:50%;background:#c8ef79;box-shadow:0 0 0 4px rgba(200,239,121,.12)}
+.welcome-art{position:absolute;right:16%;top:50%;transform:translateY(-50%);width:155px;height:155px}.orbit{position:absolute;border:1px solid rgba(200,239,121,.22);border-radius:50%;inset:9px;transform:rotate(-25deg) scaleY(.55)}.orbit-two{inset:25px;transform:rotate(55deg) scaleY(.72);border-color:rgba(200,239,121,.35)}.orbit-core{position:absolute;inset:44px;border-radius:50%;background:var(--lime);color:#1b3225;display:grid;place-items:center;font-family:Georgia,serif;font-size:31px;box-shadow:0 0 35px rgba(200,239,121,.19);transform:rotate(-8deg)}.orbit-core span{font-size:16px;position:absolute;margin:20px 0 0 28px;color:#45633a}.orbit-dot{position:absolute;width:10px;height:10px;border-radius:50%;background:#f0f8df;top:22px;right:24px;box-shadow:0 0 0 6px rgba(240,248,223,.1)}
+.metrics{gap:12px;margin-bottom:16px}.metric,.panel{background:var(--panel);border:1px solid #e5e9e1;border-radius:14px;box-shadow:0 4px 18px rgba(28,48,35,.035);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}.metric{padding:17px 18px;position:relative;overflow:hidden}.metric:after{content:"";position:absolute;right:-17px;top:-23px;width:65px;height:65px;border-radius:50%;background:#eff6e5;transition:transform .3s ease}.metric:hover{transform:translateY(-3px);box-shadow:0 12px 24px rgba(28,48,35,.075);border-color:#d7e4cb}.metric:hover:after{transform:scale(1.35)}.metric .label{color:#6c796f;font-size:11px;font-weight:750;letter-spacing:.15px;position:relative;z-index:1}.metric .value{font-family:Georgia,"Times New Roman",serif;font-size:31px;font-weight:500;letter-spacing:-.7px;margin-top:8px;color:#1c3025;position:relative;z-index:1}.metric .hint{font-size:10px;color:#7c887f;margin-top:2px;position:relative;z-index:1}
+.columns{gap:15px}.panel{padding:18px 19px;margin-bottom:15px}.panel-head{margin-bottom:13px}h2{font-size:14px;font-weight:780;color:#23352b;letter-spacing:-.25px}.small{font-size:11px}.muted{color:#718076}
+table{border-collapse:separate;border-spacing:0}th{font-size:9px;letter-spacing:1.05px;color:#859087;padding:10px 8px;border-bottom:1px solid #e8ece5}td{padding:13px 8px;border-bottom:1px solid #edf0ea;font-size:12px;color:#304137}tbody tr{transition:background .18s ease}tbody tr:hover{background:#f7f9f2}td b{color:#203329;font-size:12px}.pill{padding:4px 9px;font-size:10px;letter-spacing:.1px}.pill.new{background:#edf2ff;color:#3159b7}.pill.quote{background:#fff3dc;color:#87540c}.pill.won{background:#e8f4e8;color:#286b45}.pill.lost{background:#fbeaea;color:#a63e42}
+.linkbtn{color:#547e31;font-size:11px;border-radius:6px;transition:background .18s ease,color .18s ease}.linkbtn:hover{background:#eff6e6;color:#2d511e}.task{padding:13px 0;border-bottom:1px solid #edf0ea}.task strong{font-size:12px;color:#2a3c31}.task span{font-size:10px;color:#77847a}.dot{background:#c39437}.dot.late{background:#c45454}.empty{padding:29px 18px;color:#7b887e;font-size:12px}
+.search{border:1px solid #dfe6dc;border-radius:9px;background:#fffefa;padding:10px 12px;color:#25372d;font-size:12px;transition:border-color .2s,box-shadow .2s}.search:focus,.field input:focus,.field select:focus,.field textarea:focus{border-color:#9ecb5d;box-shadow:0 0 0 3px rgba(174,218,107,.2);outline:none}.search::placeholder{color:#929c93}
+.field label{font-size:10px;color:#59695e;letter-spacing:.2px}.field input,.field select,.field textarea{border:1px solid #dfe6dc;background:#fffefa;color:#23352b;border-radius:9px;font-size:12px;transition:border-color .2s,box-shadow .2s}.field input::placeholder,.field textarea::placeholder{color:#939d94}
+.modalback{background:rgba(13,28,21,.62);backdrop-filter:blur(5px);opacity:0;transition:opacity .22s ease}.modalback.show{opacity:1}.modal{border:1px solid rgba(255,255,255,.6);border-radius:18px;padding:25px;box-shadow:0 25px 90px rgba(0,0,0,.24);animation:modalIn .26s cubic-bezier(.2,.8,.2,1)}.modalhead h2{font-family:Georgia,serif;font-size:23px;font-weight:500}.close{background:#f0f3eb;color:#3c4b40;border-radius:8px;transition:background .2s}.close:hover{background:#e2ebd8}
+.notice{background:#f8f4e9;border:1px solid #eadfc5;color:#654f28;border-radius:10px;padding:12px;font-size:11px}.kpi-bar{height:7px;background:#edf1e9}.kpi-bar span{background:#9dc75a;transition:width .7s cubic-bezier(.2,.8,.2,1)}footer{color:#89958b;font-size:10px}
+.view.active{animation:viewIn .28s ease both}
+@keyframes viewIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@keyframes modalIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{padding:15px;gap:14px}.brand-lockup{padding:0 5px}.nav{grid-template-columns:repeat(4,1fr)}.nav button{text-align:center;padding:10px 4px;font-size:11px}.nav button:before{display:none}.main{padding:22px 16px}.welcome-art{right:9%}}
+@media(max-width:560px){.main{padding:18px 12px}.top{align-items:flex-start;flex-direction:column}.top h1{font-size:34px}.actions{width:100%}.actions .btn{flex:1}.welcome-strip{min-height:160px;padding:20px}.welcome-copy strong{font-size:23px}.welcome-art{right:-25px;opacity:.62;transform:translateY(-50%) scale(.82)}.welcome-side{font-size:8px;right:15px;bottom:12px}.metrics{grid-template-columns:repeat(2,1fr)}.metric{padding:14px}.metric .value{font-size:26px}.formgrid,.settings-grid{grid-template-columns:1fr}.field.full{grid-column:auto}table{font-size:11px}th:nth-child(3),td:nth-child(3){display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* Account, theme and motion layer */
+:root{color-scheme:light;--surface-soft:#f7f8f3;--field:#fffefa;--table-line:#e8ece5}
+body{transition:background .35s,color .35s}
+.app{opacity:0;visibility:hidden;transition:opacity .35s ease}
+.app.ready{opacity:1;visibility:visible}
+.auth-screen{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at 78% 20%,rgba(200,239,121,.12),transparent 27%),#12251f;color:#f5f7ef;transition:opacity .45s,filter .45s,visibility .45s}
+.auth-screen.hidden{opacity:0;filter:blur(16px);visibility:hidden;pointer-events:none}
+.auth-card{width:min(440px,100%);padding:34px;background:#f8f8f1;color:#18271f;border-radius:22px;box-shadow:0 30px 100px #0005;animation:authRise .65s cubic-bezier(.2,.8,.2,1) both}
+.auth-brand{display:flex;align-items:center;gap:11px;margin-bottom:30px}.auth-brand .brand{color:#18271f}.auth-card h1{font-size:34px;margin:0 0 8px}.auth-card p{color:#68746c;margin:0 0 22px}.auth-tabs{display:flex;gap:7px;padding:5px;background:#e9ede4;border-radius:11px;margin-bottom:20px}.auth-tabs button{flex:1;border:0;background:transparent;padding:10px;border-radius:8px;color:#637067;font-weight:750}.auth-tabs button.active{background:#fff;color:#17251f;box-shadow:0 2px 8px #14251b12}.auth-fields{display:grid;gap:12px}.auth-fields label{display:grid;gap:6px;font-size:12px;font-weight:750;color:#526057}.auth-fields input{padding:12px 13px;border:1px solid #dce3d8;border-radius:10px;background:white;color:#17251f;outline:none}.auth-fields input:focus{border-color:#8eaf5b;box-shadow:0 0 0 3px #c8ef7938}.auth-submit{width:100%;margin-top:17px;padding:13px;border:0;border-radius:10px;background:#c8ef79;color:#1b2b20;font-weight:850}.auth-error{min-height:18px;color:#b34747;font-size:12px;margin-top:10px}.auth-foot{font-size:11px;color:#7a857d;margin-top:17px;line-height:1.5}
+.account-chip{display:flex;align-items:center;gap:8px;color:#dce8dd;font-size:12px;padding:0 8px}.avatar{width:29px;height:29px;border-radius:50%;display:grid;place-items:center;background:var(--lime);color:#1a2a20;font-weight:850}
+.theme-toggle{border:1px solid rgba(221,239,223,.16);background:rgba(255,255,255,.05);color:#e8f0e7;padding:10px 12px;border-radius:10px;text-align:left;font-weight:700}
+.transition-shield{position:fixed;inset:0;z-index:30;pointer-events:none;opacity:0;background:rgba(18,37,31,.07);backdrop-filter:blur(0);transition:opacity .22s,backdrop-filter .34s cubic-bezier(.2,.8,.2,1)}.transition-shield.active{opacity:1;backdrop-filter:blur(13px)}
+.view.active{animation:viewSettle .48s cubic-bezier(.2,.8,.2,1) both;transform-origin:50% 20%}
+@keyframes viewSettle{0%{opacity:0;filter:blur(12px);transform:translateY(13px) scale(.99)}100%{opacity:1;filter:blur(0);transform:translateY(0) scale(1)}}
+.reveal{opacity:0;transform:translateY(18px);filter:blur(4px);transition:opacity .65s ease,transform .65s cubic-bezier(.2,.8,.2,1),filter .65s ease}.reveal.in-view{opacity:1;transform:none;filter:blur(0)}
+.account-card{display:flex;align-items:center;gap:16px}.account-avatar{width:58px;height:58px;border-radius:18px;background:var(--lime);color:#1b2b20;display:grid;place-items:center;font-size:23px;font-weight:850}
+body.dark{color-scheme:dark;--bg:#101713;--panel:#19231d;--ink:#edf3eb;--muted:#a0aea3;--line:#2b3930;--shadow:0 12px 35px rgba(0,0,0,.22);--surface-soft:#202b24;--field:#202b24;--table-line:#2a382f;background:var(--bg);color:var(--ink)}
+body.dark .main{color:var(--ink)}body.dark .metric,body.dark .panel{background:var(--panel);border-color:var(--line);box-shadow:var(--shadow)}body.dark .btn,body.dark .search{background:#202b24;color:var(--ink);border-color:var(--line)}body.dark .btn.primary{background:var(--lime);color:#1b2b20;border-color:var(--lime)}body.dark .field input,body.dark .field select,body.dark .field textarea{background:#202b24;color:var(--ink);border-color:#3a4a3e}body.dark .field label{color:#b5c1b7}body.dark td{border-color:var(--table-line)}body.dark th{border-color:var(--line)}body.dark .pill.new{background:#29385a;color:#b8c9ff}body.dark .pill.quote{background:#49391f;color:#f3c77d}body.dark .pill.won{background:#1e4130;color:#a6e5bf}body.dark .pill.lost{background:#49292b;color:#f0a8ac}body.dark .close{background:#2a382f;color:#eaf0e9}body.dark .modal{background:#19231d;color:#edf3eb}body.dark .modal .field input,body.dark .modal .field select,body.dark .modal .field textarea{background:#202b24;color:#edf3eb;border-color:#3a4a3e}body.dark .modal .field label{color:#b5c1b7}body.dark .notice{background:#3b321e;border-color:#66552e;color:#f0d49c}body.dark .welcome-strip{background:#203b2e}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none;filter:none}}
+
+</style>
+</head>
+<body>
+<section class="auth-screen" id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-brand"><div class="brand-mark"><span></span><span></span><span></span></div><div><div class="brand">quote<span>flow</span></div><div class="subbrand">THE FOLLOW-THROUGH DESK</div></div></div>
+    <h1 id="auth-title">Welcome back.</h1><p id="auth-subtitle">Sign in to open your workspace.</p>
+    <div class="auth-tabs"><button id="login-tab" class="active" type="button" onclick="setAuthMode('login')">Log in</button><button id="signup-tab" type="button" onclick="setAuthMode('signup')">Create account</button></div>
+    <form id="auth-form" onsubmit="submitAuth(event)" class="auth-fields">
+      <label id="auth-name-wrap" hidden>Full name<input id="auth-name" autocomplete="name" maxlength="80" placeholder="Your name"></label>
+      <label>Email address<input id="auth-email" type="email" required autocomplete="username" maxlength="160" placeholder="you@company.com"></label>
+      <label>Password<input id="auth-password" type="password" required autocomplete="current-password" minlength="8" maxlength="128" placeholder="At least 8 characters"></label>
+      <button class="auth-submit" id="auth-submit" type="submit">Log in to QuoteFlow</button>
+    </form>
+    <div class="auth-error" id="auth-error" role="alert"></div>
+    <div class="auth-foot">Local prototype account: credentials and records stay in this browser profile. This is not production-grade authentication or cloud storage.</div>
+  </div>
+</section>
+<div class="transition-shield" id="transition-shield"></div>
+<div class="app" id="app">
+<aside class="sidebar">
+  <div class="brand-lockup"><div class="brand-mark"><span></span><span></span><span></span></div><div><div class="brand">quote<span>flow</span></div><div class="subbrand">THE FOLLOW-THROUGH DESK</div></div></div>
+  <nav class="nav">
+    <button class="active" data-view="overview">Overview</button>
+    <button data-view="leads">Leads</button>
+    <button data-view="followups">Follow-ups</button>
+    <button data-view="settings">Settings</button>
+    <button data-view="account">Account</button>
+  </nav>
+  <div class="account-chip"><span class="avatar" id="side-avatar">Q</span><span id="side-user">Your workspace</span></div>
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☾ &nbsp; Switch to dark mode</button>
+  <div class="side-note"><b>Local-first pilot</b><br>Records stay in this browser. Export a backup regularly. No messages are sent automatically.</div>
+</aside>
+<main class="main">
+  <section class="view active" id="overview">
+    <div class="top"><div><div class="eyebrow">WORKSPACE <span class="crumb">/ OVERVIEW</span></div><h1>Lead desk<span class="heading-period">.</span></h1><p class="page-subtitle">A clear view of every opportunity, from first hello to booked.</p></div><div class="actions"><button class="btn" onclick="exportCSV()">Export CSV</button><button class="btn primary" onclick="openLead()"><span class="plus">+</span> New lead</button></div></div>
+    <div class="welcome-strip"><div class="welcome-copy"><span class="welcome-kicker">YOUR PIPELINE, IN FOCUS</span><strong>Good follow-through<br><em>builds good business.</em></strong><span class="welcome-note">Keep every conversation moving.</span></div><div class="welcome-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit-core">Q<span>F</span></div><div class="orbit-dot"></div></div><div class="welcome-side"><span class="live-dot"></span> YOUR WORKSPACE IS READY</div></div>
+    <div class="metrics">
+      <div class="metric"><div class="label">Open opportunities</div><div class="value" id="m-open">0</div><div class="hint">New + quote sent</div></div>
+      <div class="metric"><div class="label">Pipeline value</div><div class="value" id="m-pipeline">$0</div><div class="hint">Open quoted value</div></div>
+      <div class="metric"><div class="label">Won this month</div><div class="value" id="m-won">0</div><div class="hint" id="m-wonval">$0 booked value</div></div>
+      <div class="metric"><div class="label">Follow-ups due</div><div class="value" id="m-due">0</div><div class="hint">Due today or overdue</div></div>
+    </div>
+    <div class="columns">
+      <div class="panel"><div class="panel-head"><h2>Recent opportunities</h2><button class="linkbtn" onclick="showView('leads')">View all →</button></div><div id="recent"></div></div>
+      <div>
+        <div class="panel"><div class="panel-head"><h2>Next actions</h2><span class="small muted">Priority queue</span></div><div id="next-actions"></div></div>
+        <div class="panel"><h2>Conversion snapshot</h2><div class="small muted" style="margin-top:12px">Won opportunities</div><div style="font-size:24px;font-weight:800" id="conversion">0%</div><div class="kpi-bar"><span id="conversionbar" style="width:0%"></span></div><div class="small muted" style="margin-top:8px">Won ÷ all recorded leads</div></div>
+      </div>
+    </div>
+    <footer>QuoteFlow is an early pilot tool. Metrics are calculated from the records entered here.</footer>
+  </section>
+
+  <section class="view" id="leads">
+    <div class="top"><div><div class="eyebrow">Workspace / Pipeline</div><h1>Leads & quotes</h1></div><div class="actions"><button class="btn" onclick="exportCSV()">Export CSV</button><button class="btn primary" onclick="openLead()">+ New lead</button></div></div>
+    <div class="panel"><div class="toolbar"><input id="search" class="search" placeholder="Search name, email or service…" oninput="renderLeads()"><select id="filter" class="search" style="min-width:150px" onchange="renderLeads()"><option value="all">All statuses</option><option>New</option><option>Quote sent</option><option>Won</option><option>Lost</option></select></div><div id="lead-table"></div></div>
+  </section>
+
+  <section class="view" id="followups">
+    <div class="top"><div><div class="eyebrow">Workspace / Follow-up queue</div><h1>Follow-ups</h1></div><button class="btn" onclick="renderFollowups()">Refresh queue</button></div>
+    <div class="notice">This version creates reminders and message drafts only. It does not send email or SMS automatically. Review each message and send it through your own approved channel.</div>
+    <div class="panel"><div class="panel-head"><h2>Due and upcoming</h2><span class="small muted">Sorted by date</span></div><div id="follow-list"></div></div>
+  </section>
+
+  <section class="view" id="settings">
+    <div class="top"><div><div class="eyebrow">Workspace / Configuration</div><h1>Settings & data</h1></div></div>
+    <div class="settings-grid">
+      <div class="panel"><h2>Business profile</h2><div class="formgrid" style="margin-top:14px">
+        <div class="field full"><label>Business name</label><input id="bizname" placeholder="Your cleaning company"></div>
+        <div class="field full"><label>Reply-to email</label><input id="bizemail" type="email" placeholder="hello@example.com"></div>
+        <div class="field full"><label>Default follow-up interval (days)</label><input id="interval" type="number" min="1" max="30" value="2"></div>
+        <div class="field full"><button class="btn primary" onclick="saveSettings()">Save settings</button></div>
+      </div></div>
+      <div class="panel"><h2>Data management</h2><p class="small muted">Your records are stored in this browser on this device. Clearing browser data may erase them.</p><div style="display:grid;gap:9px;margin-top:16px"><button class="btn" onclick="exportJSON()">Download full backup (JSON)</button><label class="btn" style="text-align:center">Import backup<input type="file" accept="application/json" hidden onchange="importJSON(event)"></label><button class="btn" onclick="seedDemo()">Load sample data</button><button class="btn" style="color:var(--red)" onclick="clearData()">Delete all local data</button></div></div>
+    </div>
+    <div class="panel"><h2>Important limitations</h2><ul class="small muted"><li>No automatic email/SMS delivery or calendar sync.</li><li>No multi-user accounts, cloud database or access controls.</li><li>Do not enter sensitive personal, payment or access information.</li><li>Use customer consent and follow applicable privacy and anti-spam requirements before contacting leads.</li></ul></div>
+  </section>
+
+  <section class="view" id="account">
+    <div class="top"><div><div class="eyebrow">Workspace / Identity</div><h1>Account</h1><p class="page-subtitle">Manage your local QuoteFlow profile and session.</p></div></div>
+    <div class="panel account-card reveal"><div class="account-avatar" id="account-avatar">Q</div><div><h2 id="account-name">Your account</h2><div class="muted small" id="account-email"></div><div class="small muted" style="margin-top:5px">Local browser account</div></div></div>
+    <div class="settings-grid">
+      <div class="panel reveal"><h2>Workspace preferences</h2><p class="small muted">Theme preference is saved on this device.</p><button class="btn" style="margin-top:12px" onclick="toggleTheme()">Toggle appearance</button></div>
+      <div class="panel reveal"><h2>Session</h2><p class="small muted">Sign out of this local workspace on this browser.</p><button class="btn" style="margin-top:12px" onclick="logout()">Log out</button></div>
+    </div>
+    <div class="notice">Important: this prototype does not provide server-side identity verification, password recovery, encrypted cloud storage, or multi-device synchronization. Do not use it for confidential customer records.</div>
+  </section>
+</main>
+</div>
+
+<div class="modalback" id="modal">
+<div class="modal">
+  <div class="modalhead"><h2 id="modal-title">New lead</h2><button class="close" onclick="closeModal()">Close</button></div>
+  <form id="lead-form" onsubmit="saveLead(event)">
+    <input type="hidden" id="lead-id">
+    <div class="formgrid">
+      <div class="field"><label>Customer name *</label><input id="name" required maxlength="90"></div>
+      <div class="field"><label>Email</label><input id="email" type="email" maxlength="120"></div>
+      <div class="field"><label>Phone</label><input id="phone" maxlength="30"></div>
+      <div class="field"><label>Service requested *</label><input id="service" required maxlength="100" placeholder="e.g. Biweekly home cleaning"></div>
+      <div class="field"><label>Estimated value (CAD)</label><input id="value" type="number" min="0" step="0.01" value="0"></div>
+      <div class="field"><label>Status</label><select id="status"><option>New</option><option>Quote sent</option><option>Won</option><option>Lost</option></select></div>
+      <div class="field"><label>Next follow-up date</label><input id="follow-date" type="date"></div>
+      <div class="field"><label>Lead source</label><select id="source"><option>Website</option><option>Phone</option><option>Email</option><option>Referral</option><option>Social media</option><option>Other</option></select></div>
+      <div class="field full"><label>Notes</label><textarea id="notes" maxlength="1000" placeholder="Scope, timing, quote details…"></textarea></div>
+    </div>
+    <div class="actions" style="justify-content:flex-end;margin-top:18px"><button type="button" class="btn" onclick="closeModal()">Cancel</button><button class="btn primary" type="submit">Save lead</button></div>
+  </form>
+</div>
+</div>
+<script>
+const KEY='quoteflow_leads_v1', SETKEY='quoteflow_settings_v1', USERS='quoteflow_local_users_v1', SESSION='quoteflow_local_session_v1';
+const $=id=>document.getElementById(id);
+let currentUser=null, leads=[], settings={}, authMode='login';
+function scopedKey(base){return `${base}::${currentUser?.email||'guest'}`}
+function loadWorkspace(){leads=JSON.parse(localStorage.getItem(scopedKey(KEY))||'[]');settings=JSON.parse(localStorage.getItem(scopedKey(SETKEY))||'{}');}
+function persist(){if(!currentUser)return;localStorage.setItem(scopedKey(KEY),JSON.stringify(leads));}
+function saveWorkspaceSettings(){if(!currentUser)return;localStorage.setItem(scopedKey(SETKEY),JSON.stringify(settings));}
+function setAuthMode(mode){authMode=mode;const signup=mode==='signup';$('login-tab').classList.toggle('active',!signup);$('signup-tab').classList.toggle('active',signup);$('auth-name-wrap').hidden=!signup;$('auth-title').textContent=signup?'Create your workspace.':'Welcome back.';$('auth-subtitle').textContent=signup?'Set up a local QuoteFlow account.':'Sign in to open your workspace.';$('auth-submit').textContent=signup?'Create account':'Log in to QuoteFlow';$('auth-password').autocomplete=signup?'new-password':'current-password';$('auth-error').textContent='';}
+async function passwordHash(password,salt){const enc=new TextEncoder(),key=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:enc.encode(salt),iterations:180000,hash:'SHA-256'},key,256);return [...new Uint8Array(bits)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+async function submitAuth(e){e.preventDefault();$('auth-error').textContent='';const email=$('auth-email').value.trim().toLowerCase(),password=$('auth-password').value;let users=JSON.parse(localStorage.getItem(USERS)||'{}');try{if(authMode==='signup'){const name=$('auth-name').value.trim();if(!name){$('auth-error').textContent='Enter your name.';return;}if(users[email]){$('auth-error').textContent='An account with this email already exists.';return;}const salt=crypto.randomUUID();users[email]={name,email,salt,hash:await passwordHash(password,salt),created:new Date().toISOString()};localStorage.setItem(USERS,JSON.stringify(users));currentUser={name,email};}else{const u=users[email];if(!u||!await passwordHash(password,u.salt).then(h=>h===u.hash)){$('auth-error').textContent='Email or password is incorrect.';return;}currentUser={name:u.name,email};}localStorage.setItem(SESSION,email);enterWorkspace();}catch(err){$('auth-error').textContent='This browser could not complete sign-in. Use a modern browser and try again.';}}
+function enterWorkspace(){const legacy=localStorage.getItem(KEY),legacySettings=localStorage.getItem(SETKEY);if(!localStorage.getItem('quoteflow_legacy_migrated_v1')){if(legacy&&!localStorage.getItem(scopedKey(KEY)))localStorage.setItem(scopedKey(KEY),legacy);if(legacySettings&&!localStorage.getItem(scopedKey(SETKEY)))localStorage.setItem(scopedKey(SETKEY),legacySettings);localStorage.removeItem(KEY);localStorage.removeItem(SETKEY);localStorage.setItem('quoteflow_legacy_migrated_v1','1');}loadWorkspace();$('auth-screen').classList.add('hidden');$('app').classList.add('ready');$('side-user').textContent=currentUser.name.split(' ')[0];$('side-avatar').textContent=(currentUser.name[0]||'Q').toUpperCase();$('account-name').textContent=currentUser.name;$('account-email').textContent=currentUser.email;$('account-avatar').textContent=(currentUser.name[0]||'Q').toUpperCase();loadSettings();renderOverview();renderLeads();renderFollowups();applyTheme(localStorage.getItem('quoteflow_theme')||'light');}
+function logout(){localStorage.removeItem(SESSION);currentUser=null;leads=[];settings={};$('app').classList.remove('ready');$('auth-screen').classList.remove('hidden');$('auth-form').reset();setAuthMode('login');}
+function applyTheme(theme){document.body.classList.toggle('dark',theme==='dark');$('theme-toggle').textContent=theme==='dark'?'☀  Switch to light mode':'☾  Switch to dark mode';localStorage.setItem('quoteflow_theme',theme);}
+function toggleTheme(){applyTheme(document.body.classList.contains('dark')?'light':'dark');}
+function initAuth(){const email=localStorage.getItem(SESSION),users=JSON.parse(localStorage.getItem(USERS)||'{}');if(email&&users[email]){currentUser={name:users[email].name,email};enterWorkspace();}else setAuthMode('login');}
+
+const money=n=>new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD',maximumFractionDigits:0}).format(Number(n)||0);
+const today=()=>new Date().toISOString().slice(0,10);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let switching=false;function showView(id){if(switching||!$(id))return;const active=document.querySelector('.view.active');if(active?.id===id)return;switching=true;const shield=$('transition-shield');shield.classList.add('active');setTimeout(()=>{document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(id==='overview')renderOverview();if(id==='leads')renderLeads();if(id==='followups')renderFollowups();if(id==='settings')loadSettings();if(id==='account'){ $('account-name').textContent=currentUser.name;$('account-email').textContent=currentUser.email;$('account-avatar').textContent=(currentUser.name[0]||'Q').toUpperCase();}window.scrollTo({top:0,behavior:'smooth'});requestAnimationFrame(()=>{shield.classList.remove('active');setTimeout(()=>switching=false,280);});},160);} 
+
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+function statusPill(s){return `<span class="pill ${s==='Won'?'won':s==='Lost'?'lost':s==='Quote sent'?'quote':'new'}">${esc(s)}</span>`}
+function renderOverview(){
+ const open=leads.filter(x=>['New','Quote sent'].includes(x.status)),won=leads.filter(x=>x.status==='Won'&&x.created?.slice(0,7)===today().slice(0,7)),due=leads.filter(x=>x.followDate&&x.followDate<=today()&&['New','Quote sent'].includes(x.status));
+ $('m-open').textContent=open.length;$('m-pipeline').textContent=money(open.reduce((a,x)=>a+(+x.value||0),0));$('m-won').textContent=won.length;$('m-wonval').textContent=money(won.reduce((a,x)=>a+(+x.value||0),0))+' booked value';$('m-due').textContent=due.length;
+ const rate=leads.length?Math.round(leads.filter(x=>x.status==='Won').length/leads.length*100):0;$('conversion').textContent=rate+'%';$('conversionbar').style.width=rate+'%';
+ const recent=[...leads].sort((a,b)=>(b.updated||'').localeCompare(a.updated||'')).slice(0,6);
+ $('recent').innerHTML=recent.length?`<table><thead><tr><th>Customer</th><th>Service</th><th>Status</th><th>Value</th></tr></thead><tbody>${recent.map(x=>`<tr><td><b>${esc(x.name)}</b><div class="small muted">${esc(x.email||x.phone||'No contact')}</div></td><td>${esc(x.service)}</td><td>${statusPill(x.status)}</td><td>${money(x.value)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">No leads yet. Add your first opportunity.</div>';
+ $('next-actions').innerHTML=due.length?due.slice(0,5).map(x=>`<div class="task"><i class="dot ${x.followDate<today()?'late':''}"></i><div><strong>${esc(x.name)} · ${esc(x.service)}</strong><span>${x.followDate<today()?'Overdue':'Due today'} · ${esc(x.followDate)}</span></div></div>`).join(''):'<div class="empty">No follow-ups due.</div>';
+}
+function renderLeads(){
+ const q=$('search').value.toLowerCase(),f=$('filter').value;
+ const rows=leads.filter(x=>(f==='all'||x.status===f)&&[x.name,x.email,x.service,x.phone].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.updated||'').localeCompare(a.updated||''));
+ $('lead-table').innerHTML=rows.length?`<table><thead><tr><th>Customer</th><th>Service</th><th>Status</th><th>Value</th><th>Next follow-up</th><th>Actions</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.name)}</b><div class="small muted">${esc(x.email||x.phone||'')}</div></td><td>${esc(x.service)}</td><td>${statusPill(x.status)}</td><td>${money(x.value)}</td><td>${esc(x.followDate||'—')}</td><td><div class="row-actions"><button class="linkbtn" onclick="editLead('${x.id}')">Edit</button><button class="linkbtn" onclick="draftMessage('${x.id}')">Draft</button></div></td></tr>`).join('')}</tbody></table>`:'<div class="empty">No matching leads.</div>';
+}
+function renderFollowups(){
+ const rows=leads.filter(x=>x.followDate&&['New','Quote sent'].includes(x.status)).sort((a,b)=>a.followDate.localeCompare(b.followDate));
+ $('follow-list').innerHTML=rows.length?rows.map(x=>`<div class="task"><i class="dot ${x.followDate<today()?'late':''}"></i><div style="flex:1"><strong>${esc(x.name)} — ${esc(x.service)}</strong><span>${x.followDate<today()?'Overdue':x.followDate===today()?'Due today':'Upcoming'} · ${esc(x.followDate)} · ${money(x.value)}</span><div style="margin-top:5px"><button class="linkbtn" onclick="draftMessage('${x.id}')">Prepare follow-up</button><button class="linkbtn" onclick="editLead('${x.id}')">Edit record</button><button class="linkbtn" onclick="completeFollow('${x.id}')">Mark contacted</button></div></div></div>`).join(''):'<div class="empty">No follow-ups scheduled. Add a next-action date to a lead.</div>';
+}
+function openLead(){ $('lead-form').reset();$('lead-id').value='';$('modal-title').textContent='New lead';$('value').value=0;$('follow-date').value=addDays(Number(settings.interval)||2);$('modal').classList.add('show');}
+function closeModal(){$('modal').classList.remove('show')}
+function addDays(n){let d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
+function saveLead(e){e.preventDefault();const id=$('lead-id').value||crypto.randomUUID();const old=leads.find(x=>x.id===id);const item={id,name:$('name').value.trim(),email:$('email').value.trim(),phone:$('phone').value.trim(),service:$('service').value.trim(),value:Number($('value').value)||0,status:$('status').value,followDate:$('follow-date').value,source:$('source').value,notes:$('notes').value.trim(),created:old?.created||new Date().toISOString(),updated:new Date().toISOString()};if(old)leads=leads.map(x=>x.id===id?item:x);else leads.push(item);persist();closeModal();renderOverview();renderLeads();renderFollowups();}
+function editLead(id){const x=leads.find(a=>a.id===id);if(!x)return;openLead();$('modal-title').textContent='Edit lead';$('lead-id').value=x.id;for(const [k,v] of Object.entries({name:x.name,email:x.email,phone:x.phone,service:x.service,value:x.value,status:x.status,'follow-date':x.followDate,source:x.source,notes:x.notes}))$(k).value=v??'';}
+function completeFollow(id){const x=leads.find(a=>a.id===id);if(!x)return;x.followDate=addDays(Number(settings.interval)||2);x.updated=new Date().toISOString();persist();renderFollowups();renderOverview();}
+function draftMessage(id){const x=leads.find(a=>a.id===id);if(!x)return;const subject=encodeURIComponent(`Following up on your ${x.service} quote`);const body=encodeURIComponent(`Hi ${x.name},\n\nI’m following up on your request about ${x.service}. Please let me know if you have any questions or would like to discuss next steps.\n\nBest,\n${settings.bizname||'[Business name]'}`);if(x.email)window.location.href=`mailto:${encodeURIComponent(x.email)}?subject=${subject}&body=${body}`;else{navigator.clipboard?.writeText(decodeURIComponent(body));alert('No email is saved. A message draft was copied if clipboard access is available.');}}
+function exportCSV(){const cols=['name','email','phone','service','value','status','followDate','source','notes','created','updated'];const csv=[cols.join(','),...leads.map(x=>cols.map(k=>'"'+String(x[k]??'').replace(/"/g,'""')+'"').join(','))].join('\n');download('quoteflow-leads.csv',csv,'text/csv');}
+function exportJSON(){download('quoteflow-backup.json',JSON.stringify({leads,settings},null,2),'application/json')}
+function download(name,data,type){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([data],{type}));a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
+function importJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.leads))throw Error();leads=d.leads;settings=d.settings||{};persist();saveWorkspaceSettings();loadSettings();renderOverview();renderLeads();renderFollowups();alert('Backup imported.');}catch{alert('Could not import this backup file.');}};r.readAsText(f);}
+function saveSettings(){settings={bizname:$('bizname').value.trim(),bizemail:$('bizemail').value.trim(),interval:Math.max(1,Math.min(30,Number($('interval').value)||2))};saveWorkspaceSettings();alert('Settings saved.');}
+function loadSettings(){$('bizname').value=settings.bizname||'';$('bizemail').value=settings.bizemail||'';$('interval').value=settings.interval||2}
+function clearData(){if(confirm('Delete all QuoteFlow leads and settings from this browser? This cannot be undone.')){leads=[];settings={};persist();localStorage.removeItem(scopedKey(SETKEY));loadSettings();renderOverview();renderLeads();renderFollowups();}}
+function seedDemo(){if(leads.length&&!confirm('Add sample records to the existing records?'))return;const samples=[['Morgan Lee','morgan@example.com','204-555-0101','Biweekly home cleaning',240,'Quote sent',addDays(-1),'Website'],['Avery Chen','avery@example.com','204-555-0102','Move-out clean',390,'New',today(),'Referral'],['Taylor Brooks','taylor@example.com','204-555-0103','Office cleaning',650,'Won','', 'Email'],['Jordan Patel','jordan@example.com','204-555-0104','Deep clean',310,'Lost','', 'Phone']];samples.forEach(a=>leads.push({id:crypto.randomUUID(),name:a[0],email:a[1],phone:a[2],service:a[3],value:a[4],status:a[5],followDate:a[6],source:a[7],notes:'Sample record — replace with real information.',created:new Date().toISOString(),updated:new Date().toISOString()}));persist();renderOverview();renderLeads();renderFollowups();alert('Sample records added. Delete them before using the tool with real customer records.');}
+const revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in-view');revealObserver.unobserve(entry.target);}}),{threshold:.12});
+function observeReveals(){document.querySelectorAll('.view.active .panel,.view.active .metric,.view.active .welcome-strip').forEach(el=>{el.classList.add('reveal');revealObserver.observe(el);});}
+const originalShowView=showView;showView=function(id){originalShowView(id);setTimeout(observeReveals,230);};
+const renderOverviewBase=renderOverview;renderOverview=function(){renderOverviewBase();observeReveals();};
+initAuth();
+</script>
+</body>
+</html>
