@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#12251f">
+<meta name="description" content="QuoteFlow keeps every customer inquiry, quote and follow-up organized in one clear workspace.">
 <title>QuoteFlow — Lead & Quote Desk</title>
 <style>
 :root{--bg:#f4f6f8;--panel:#fff;--ink:#17202b;--muted:#687585;--line:#e5e9ee;--nav:#101923;--blue:#315efb;--blue2:#edf1ff;--green:#16865b;--amber:#a86609;--red:#b53a42;--shadow:0 8px 30px rgba(20,35,55,.06)}
@@ -105,6 +107,33 @@ body.dark{color-scheme:dark;--bg:#101713;--panel:#19231d;--ink:#edf3eb;--muted:#
 body.dark .main{color:var(--ink)}body.dark .metric,body.dark .panel{background:var(--panel);border-color:var(--line);box-shadow:var(--shadow)}body.dark .btn,body.dark .search{background:#202b24;color:var(--ink);border-color:var(--line)}body.dark .btn.primary{background:var(--lime);color:#1b2b20;border-color:var(--lime)}body.dark .field input,body.dark .field select,body.dark .field textarea{background:#202b24;color:var(--ink);border-color:#3a4a3e}body.dark .field label{color:#b5c1b7}body.dark td{border-color:var(--table-line)}body.dark th{border-color:var(--line)}body.dark .pill.new{background:#29385a;color:#b8c9ff}body.dark .pill.quote{background:#49391f;color:#f3c77d}body.dark .pill.won{background:#1e4130;color:#a6e5bf}body.dark .pill.lost{background:#49292b;color:#f0a8ac}body.dark .close{background:#2a382f;color:#eaf0e9}body.dark .modal{background:#19231d;color:#edf3eb}body.dark .modal .field input,body.dark .modal .field select,body.dark .modal .field textarea{background:#202b24;color:#edf3eb;border-color:#3a4a3e}body.dark .modal .field label{color:#b5c1b7}body.dark .notice{background:#3b321e;border-color:#66552e;color:#f0d49c}body.dark .welcome-strip{background:#203b2e}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none;filter:none}}
 
+
+/* Product polish + accessibility + reliable dark theme */
+:root{--focus:rgba(157,199,90,.28)}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.nav button:focus-visible{outline-color:var(--lime)}
+body.dark .metric .value,body.dark h2,body.dark td,body.dark td b{color:var(--ink)}
+body.dark .metric .label,body.dark .metric .hint,body.dark .muted,body.dark .page-subtitle{color:var(--muted)}
+body.dark .metric:after{background:#26352a}
+body.dark tbody tr:hover{background:#202d25}
+body.dark .pill{background:#29352d;color:#dce8dc}
+body.dark .search::placeholder,body.dark .field input::placeholder,body.dark .field textarea::placeholder{color:#91a096}
+body.dark .kpi-bar{background:#2b3930}
+body.dark .linkbtn{color:#c8ef79}
+body.dark .linkbtn:hover{background:#2a392e;color:#e3f6c4}.danger-link{color:#b94b4b}.danger-link:hover{background:#fbeaea;color:#9d3036}body.dark .danger-link{color:#f0a8ac}.danger-link:focus-visible{outline-color:#c45454}
+body.dark .notice{background:#3b321e;border-color:#66552e;color:#f0d49c}
+body.dark .welcome-strip{background:#203b2e}
+body.dark .empty{color:#a0aea3}
+.toast{position:fixed;right:22px;bottom:22px;z-index:80;max-width:min(420px,calc(100vw - 32px));padding:13px 16px;border-radius:12px;background:#183329;color:#f4f7ef;box-shadow:0 15px 45px #0003;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .22s,transform .22s;font-size:13px}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.error{background:#8f3438}
+#lead-table,#recent{width:100%;overflow-x:auto}.table-wrap{width:100%;overflow-x:auto}
+.table-wrap table{min-width:650px}
+.nav button{min-height:42px}
+.btn:disabled,.linkbtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+@media(max-width:900px){.nav{grid-template-columns:repeat(5,minmax(0,1fr))}.nav button{font-size:10px;white-space:normal}}
+@media(max-width:560px){.nav{grid-template-columns:repeat(5,minmax(0,1fr));gap:3px}.nav button{font-size:9px;padding:9px 2px}.table-wrap table{min-width:620px}.toast{right:12px;bottom:12px}}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;filter:none}}
 </style>
 </head>
 <body>
@@ -123,11 +152,12 @@ body.dark .main{color:var(--ink)}body.dark .metric,body.dark .panel{background:v
     <div class="auth-foot">Local prototype account: credentials and records stay in this browser profile. This is not production-grade authentication or cloud storage.</div>
   </div>
 </section>
-<div class="transition-shield" id="transition-shield"></div>
+<div class="transition-shield" id="transition-shield" aria-hidden="true"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="app" id="app">
 <aside class="sidebar">
   <div class="brand-lockup"><div class="brand-mark"><span></span><span></span><span></span></div><div><div class="brand">quote<span>flow</span></div><div class="subbrand">THE FOLLOW-THROUGH DESK</div></div></div>
-  <nav class="nav">
+  <nav class="nav" aria-label="Main navigation">
     <button class="active" data-view="overview">Overview</button>
     <button data-view="leads">Leads</button>
     <button data-view="followups">Follow-ups</button>
@@ -139,7 +169,7 @@ body.dark .main{color:var(--ink)}body.dark .metric,body.dark .panel{background:v
   <div class="side-note"><b>Local-first pilot</b><br>Records stay in this browser. Export a backup regularly. No messages are sent automatically.</div>
 </aside>
 <main class="main">
-  <section class="view active" id="overview">
+  <section class="view active" id="overview" aria-hidden="false">
     <div class="top"><div><div class="eyebrow">WORKSPACE <span class="crumb">/ OVERVIEW</span></div><h1>Lead desk<span class="heading-period">.</span></h1><p class="page-subtitle">A clear view of every opportunity, from first hello to booked.</p></div><div class="actions"><button class="btn" onclick="exportCSV()">Export CSV</button><button class="btn primary" onclick="openLead()"><span class="plus">+</span> New lead</button></div></div>
     <div class="welcome-strip"><div class="welcome-copy"><span class="welcome-kicker">YOUR PIPELINE, IN FOCUS</span><strong>Good follow-through<br><em>builds good business.</em></strong><span class="welcome-note">Keep every conversation moving.</span></div><div class="welcome-art" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit-core">Q<span>F</span></div><div class="orbit-dot"></div></div><div class="welcome-side"><span class="live-dot"></span> YOUR WORKSPACE IS READY</div></div>
     <div class="metrics">
@@ -152,24 +182,24 @@ body.dark .main{color:var(--ink)}body.dark .metric,body.dark .panel{background:v
       <div class="panel"><div class="panel-head"><h2>Recent opportunities</h2><button class="linkbtn" onclick="showView('leads')">View all →</button></div><div id="recent"></div></div>
       <div>
         <div class="panel"><div class="panel-head"><h2>Next actions</h2><span class="small muted">Priority queue</span></div><div id="next-actions"></div></div>
-        <div class="panel"><h2>Conversion snapshot</h2><div class="small muted" style="margin-top:12px">Won opportunities</div><div style="font-size:24px;font-weight:800" id="conversion">0%</div><div class="kpi-bar"><span id="conversionbar" style="width:0%"></span></div><div class="small muted" style="margin-top:8px">Won ÷ all recorded leads</div></div>
+        <div class="panel"><h2>Conversion snapshot</h2><div class="small muted" style="margin-top:12px">Won opportunities</div><div style="font-size:24px;font-weight:800" id="conversion">0%</div><div class="kpi-bar"><span id="conversionbar" style="width:0%"></span></div><div class="small muted" style="margin-top:8px">Won ÷ closed leads</div></div>
       </div>
     </div>
     <footer>QuoteFlow is an early pilot tool. Metrics are calculated from the records entered here.</footer>
   </section>
 
-  <section class="view" id="leads">
+  <section class="view" id="leads" aria-hidden="true">
     <div class="top"><div><div class="eyebrow">Workspace / Pipeline</div><h1>Leads & quotes</h1></div><div class="actions"><button class="btn" onclick="exportCSV()">Export CSV</button><button class="btn primary" onclick="openLead()">+ New lead</button></div></div>
-    <div class="panel"><div class="toolbar"><input id="search" class="search" placeholder="Search name, email or service…" oninput="renderLeads()"><select id="filter" class="search" style="min-width:150px" onchange="renderLeads()"><option value="all">All statuses</option><option>New</option><option>Quote sent</option><option>Won</option><option>Lost</option></select></div><div id="lead-table"></div></div>
+    <div class="panel"><div class="toolbar"><input id="search" class="search" aria-label="Search leads" placeholder="Search name, email, phone or service…" oninput="renderLeads()"><select id="filter" class="search" aria-label="Filter leads by status" style="min-width:150px" onchange="renderLeads()"><option value="all">All statuses</option><option>New</option><option>Quote sent</option><option>Won</option><option>Lost</option></select></div><div id="lead-table"></div></div>
   </section>
 
-  <section class="view" id="followups">
+  <section class="view" id="followups" aria-hidden="true">
     <div class="top"><div><div class="eyebrow">Workspace / Follow-up queue</div><h1>Follow-ups</h1></div><button class="btn" onclick="renderFollowups()">Refresh queue</button></div>
     <div class="notice">This version creates reminders and message drafts only. It does not send email or SMS automatically. Review each message and send it through your own approved channel.</div>
     <div class="panel"><div class="panel-head"><h2>Due and upcoming</h2><span class="small muted">Sorted by date</span></div><div id="follow-list"></div></div>
   </section>
 
-  <section class="view" id="settings">
+  <section class="view" id="settings" aria-hidden="true">
     <div class="top"><div><div class="eyebrow">Workspace / Configuration</div><h1>Settings & data</h1></div></div>
     <div class="settings-grid">
       <div class="panel"><h2>Business profile</h2><div class="formgrid" style="margin-top:14px">
@@ -183,7 +213,7 @@ body.dark .main{color:var(--ink)}body.dark .metric,body.dark .panel{background:v
     <div class="panel"><h2>Important limitations</h2><ul class="small muted"><li>No automatic email/SMS delivery or calendar sync.</li><li>No multi-user accounts, cloud database or access controls.</li><li>Do not enter sensitive personal, payment or access information.</li><li>Use customer consent and follow applicable privacy and anti-spam requirements before contacting leads.</li></ul></div>
   </section>
 
-  <section class="view" id="account">
+  <section class="view" id="account" aria-hidden="true">
     <div class="top"><div><div class="eyebrow">Workspace / Identity</div><h1>Account</h1><p class="page-subtitle">Manage your local QuoteFlow profile and session.</p></div></div>
     <div class="panel account-card reveal"><div class="account-avatar" id="account-avatar">Q</div><div><h2 id="account-name">Your account</h2><div class="muted small" id="account-email"></div><div class="small muted" style="margin-top:5px">Local browser account</div></div></div>
     <div class="settings-grid">
@@ -196,7 +226,7 @@ body.dark .main{color:var(--ink)}body.dark .metric,body.dark .panel{background:v
 </div>
 
 <div class="modalback" id="modal">
-<div class="modal">
+<div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modalhead"><h2 id="modal-title">New lead</h2><button class="close" onclick="closeModal()">Close</button></div>
   <form id="lead-form" onsubmit="saveLead(event)">
     <input type="hidden" id="lead-id">
@@ -220,57 +250,65 @@ const KEY='quoteflow_leads_v1', SETKEY='quoteflow_settings_v1', USERS='quoteflow
 const $=id=>document.getElementById(id);
 let currentUser=null, leads=[], settings={}, authMode='login';
 function scopedKey(base){return `${base}::${currentUser?.email||'guest'}`}
-function loadWorkspace(){leads=JSON.parse(localStorage.getItem(scopedKey(KEY))||'[]');settings=JSON.parse(localStorage.getItem(scopedKey(SETKEY))||'{}');}
-function persist(){if(!currentUser)return;localStorage.setItem(scopedKey(KEY),JSON.stringify(leads));}
-function saveWorkspaceSettings(){if(!currentUser)return;localStorage.setItem(scopedKey(SETKEY),JSON.stringify(settings));}
+function safeParse(key,fallback){try{const raw=localStorage.getItem(key);return raw?JSON.parse(raw):fallback;}catch{return fallback;}}
+function loadWorkspace(){const stored=safeParse(scopedKey(KEY),[]),prefs=safeParse(scopedKey(SETKEY),{});leads=Array.isArray(stored)?stored.map(normaliseLead).filter(Boolean):[];settings=prefs&&typeof prefs==='object'&&!Array.isArray(prefs)?prefs:{};}
+function persist(){if(!currentUser)return;try{localStorage.setItem(scopedKey(KEY),JSON.stringify(leads));}catch{notify('Could not save. Browser storage may be full or disabled.','error');}}
+function saveWorkspaceSettings(){if(!currentUser)return;try{localStorage.setItem(scopedKey(SETKEY),JSON.stringify(settings));}catch{notify('Could not save settings. Browser storage may be unavailable.','error');}}
 function setAuthMode(mode){authMode=mode;const signup=mode==='signup';$('login-tab').classList.toggle('active',!signup);$('signup-tab').classList.toggle('active',signup);$('auth-name-wrap').hidden=!signup;$('auth-title').textContent=signup?'Create your workspace.':'Welcome back.';$('auth-subtitle').textContent=signup?'Set up a local QuoteFlow account.':'Sign in to open your workspace.';$('auth-submit').textContent=signup?'Create account':'Log in to QuoteFlow';$('auth-password').autocomplete=signup?'new-password':'current-password';$('auth-error').textContent='';}
 async function passwordHash(password,salt){const enc=new TextEncoder(),key=await crypto.subtle.importKey('raw',enc.encode(password),'PBKDF2',false,['deriveBits']);const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:enc.encode(salt),iterations:180000,hash:'SHA-256'},key,256);return [...new Uint8Array(bits)].map(x=>x.toString(16).padStart(2,'0')).join('');}
-async function submitAuth(e){e.preventDefault();$('auth-error').textContent='';const email=$('auth-email').value.trim().toLowerCase(),password=$('auth-password').value;let users=JSON.parse(localStorage.getItem(USERS)||'{}');try{if(authMode==='signup'){const name=$('auth-name').value.trim();if(!name){$('auth-error').textContent='Enter your name.';return;}if(users[email]){$('auth-error').textContent='An account with this email already exists.';return;}const salt=crypto.randomUUID();users[email]={name,email,salt,hash:await passwordHash(password,salt),created:new Date().toISOString()};localStorage.setItem(USERS,JSON.stringify(users));currentUser={name,email};}else{const u=users[email];if(!u||!await passwordHash(password,u.salt).then(h=>h===u.hash)){$('auth-error').textContent='Email or password is incorrect.';return;}currentUser={name:u.name,email};}localStorage.setItem(SESSION,email);enterWorkspace();}catch(err){$('auth-error').textContent='This browser could not complete sign-in. Use a modern browser and try again.';}}
+async function submitAuth(e){e.preventDefault();$('auth-error').textContent='';const email=$('auth-email').value.trim().toLowerCase(),password=$('auth-password').value;let users=safeParse(USERS,{});if(!users||typeof users!=='object'||Array.isArray(users))users={};try{if(authMode==='signup'){const name=$('auth-name').value.trim();if(!name){$('auth-error').textContent='Enter your name.';return;}if(users[email]){$('auth-error').textContent='An account with this email already exists.';return;}const salt=crypto.randomUUID();users[email]={name,email,salt,hash:await passwordHash(password,salt),created:new Date().toISOString()};localStorage.setItem(USERS,JSON.stringify(users));currentUser={name,email};}else{const u=users[email];if(!u||!await passwordHash(password,u.salt).then(h=>h===u.hash)){$('auth-error').textContent='Email or password is incorrect.';return;}currentUser={name:u.name,email};}localStorage.setItem(SESSION,email);enterWorkspace();}catch(err){$('auth-error').textContent='This browser could not complete sign-in. Use a modern browser and try again.';}}
 function enterWorkspace(){const legacy=localStorage.getItem(KEY),legacySettings=localStorage.getItem(SETKEY);if(!localStorage.getItem('quoteflow_legacy_migrated_v1')){if(legacy&&!localStorage.getItem(scopedKey(KEY)))localStorage.setItem(scopedKey(KEY),legacy);if(legacySettings&&!localStorage.getItem(scopedKey(SETKEY)))localStorage.setItem(scopedKey(SETKEY),legacySettings);localStorage.removeItem(KEY);localStorage.removeItem(SETKEY);localStorage.setItem('quoteflow_legacy_migrated_v1','1');}loadWorkspace();$('auth-screen').classList.add('hidden');$('app').classList.add('ready');$('side-user').textContent=currentUser.name.split(' ')[0];$('side-avatar').textContent=(currentUser.name[0]||'Q').toUpperCase();$('account-name').textContent=currentUser.name;$('account-email').textContent=currentUser.email;$('account-avatar').textContent=(currentUser.name[0]||'Q').toUpperCase();loadSettings();renderOverview();renderLeads();renderFollowups();applyTheme(localStorage.getItem('quoteflow_theme')||'light');}
 function logout(){localStorage.removeItem(SESSION);currentUser=null;leads=[];settings={};$('app').classList.remove('ready');$('auth-screen').classList.remove('hidden');$('auth-form').reset();setAuthMode('login');}
 function applyTheme(theme){document.body.classList.toggle('dark',theme==='dark');$('theme-toggle').textContent=theme==='dark'?'☀  Switch to light mode':'☾  Switch to dark mode';localStorage.setItem('quoteflow_theme',theme);}
 function toggleTheme(){applyTheme(document.body.classList.contains('dark')?'light':'dark');}
-function initAuth(){const email=localStorage.getItem(SESSION),users=JSON.parse(localStorage.getItem(USERS)||'{}');if(email&&users[email]){currentUser={name:users[email].name,email};enterWorkspace();}else setAuthMode('login');}
+function initAuth(){const email=localStorage.getItem(SESSION),users=safeParse(USERS,{});if(email&&users[email]){currentUser={name:users[email].name,email};enterWorkspace();}else setAuthMode('login');}
 
+function dateKey(d=new Date()){const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');return `${y}-${m}-${day}`;}
+function validDate(v){if(typeof v!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(v))return false;const [y,m,d]=v.split('-').map(Number),test=new Date(y,m-1,d,12);return test.getFullYear()===y&&test.getMonth()===m-1&&test.getDate()===d;}
+function normaliseLead(x){if(!x||typeof x!=='object'||Array.isArray(x))return null;const allowed=['New','Quote sent','Won','Lost'];const name=String(x.name||'').trim().slice(0,90),service=String(x.service||'').trim().slice(0,100);if(!name||!service)return null;const now=new Date().toISOString(),stamp=v=>typeof v==='string'&&v.length<40?v:now;return{id:/^[\w-]{8,80}$/.test(String(x.id||''))?String(x.id):crypto.randomUUID(),name,email:String(x.email||'').slice(0,120),phone:String(x.phone||'').slice(0,30),service,value:Math.max(0,Number(x.value)||0),status:allowed.includes(x.status)?x.status:'New',followDate:validDate(x.followDate)?x.followDate:'',source:String(x.source||'Other').slice(0,40),notes:String(x.notes||'').slice(0,1000),created:stamp(x.created),updated:stamp(x.updated),wonAt:x.status==='Won'?stamp(x.wonAt||x.updated||x.created):'',lastContacted:stamp(x.lastContacted||''),contactCount:Math.max(0,Math.min(100000,Number(x.contactCount)||0))};}
 const money=n=>new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD',maximumFractionDigits:0}).format(Number(n)||0);
-const today=()=>new Date().toISOString().slice(0,10);
+const today=()=>dateKey();
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let switching=false;function showView(id){if(switching||!$(id))return;const active=document.querySelector('.view.active');if(active?.id===id)return;switching=true;const shield=$('transition-shield');shield.classList.add('active');setTimeout(()=>{document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id===id));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.view===id));if(id==='overview')renderOverview();if(id==='leads')renderLeads();if(id==='followups')renderFollowups();if(id==='settings')loadSettings();if(id==='account'){ $('account-name').textContent=currentUser.name;$('account-email').textContent=currentUser.email;$('account-avatar').textContent=(currentUser.name[0]||'Q').toUpperCase();}window.scrollTo({top:0,behavior:'smooth'});requestAnimationFrame(()=>{shield.classList.remove('active');setTimeout(()=>switching=false,280);});},160);} 
+let toastTimer=null;function notify(message,type='success'){const t=$('toast');if(!t)return;t.textContent=message;t.classList.toggle('error',type==='error');t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3200);}
+let switching=false,viewTimer=null;function showView(id){const target=$(id);if(!target||!target.classList.contains('view'))return;const active=document.querySelector('.view.active');if(active?.id===id||switching)return;switching=true;const shield=$('transition-shield');shield.classList.add('active');window.clearTimeout(viewTimer);viewTimer=setTimeout(()=>{document.querySelectorAll('.view').forEach(v=>{const on=v.id===id;v.classList.toggle('active',on);v.setAttribute('aria-hidden',String(!on));});document.querySelectorAll('.nav button').forEach(b=>{const on=b.dataset.view===id;b.classList.toggle('active',on);b.setAttribute('aria-current',on?'page':'false');});if(id==='overview')renderOverview();if(id==='leads')renderLeads();if(id==='followups')renderFollowups();if(id==='settings')loadSettings();if(id==='account'){ $('account-name').textContent=currentUser.name;$('account-email').textContent=currentUser.email;$('account-avatar').textContent=(currentUser.name[0]||'Q').toUpperCase();}window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});requestAnimationFrame(()=>{shield.classList.remove('active');setTimeout(()=>{switching=false;observeReveals();},350);});},150);}
 
 document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('modal').classList.contains('show'))closeModal();}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();if($('app').classList.contains('ready')){showView('leads');setTimeout(()=>$('search').focus(),220);}}});$('modal').addEventListener('click',e=>{if(e.target===$('modal'))closeModal();});
 function statusPill(s){return `<span class="pill ${s==='Won'?'won':s==='Lost'?'lost':s==='Quote sent'?'quote':'new'}">${esc(s)}</span>`}
 function renderOverview(){
- const open=leads.filter(x=>['New','Quote sent'].includes(x.status)),won=leads.filter(x=>x.status==='Won'&&x.created?.slice(0,7)===today().slice(0,7)),due=leads.filter(x=>x.followDate&&x.followDate<=today()&&['New','Quote sent'].includes(x.status));
+ const open=leads.filter(x=>['New','Quote sent'].includes(x.status)),won=leads.filter(x=>x.status==='Won'&&(x.wonAt||x.updated||'').slice(0,7)===today().slice(0,7)),due=leads.filter(x=>x.followDate&&x.followDate<=today()&&['New','Quote sent'].includes(x.status));
  $('m-open').textContent=open.length;$('m-pipeline').textContent=money(open.reduce((a,x)=>a+(+x.value||0),0));$('m-won').textContent=won.length;$('m-wonval').textContent=money(won.reduce((a,x)=>a+(+x.value||0),0))+' booked value';$('m-due').textContent=due.length;
- const rate=leads.length?Math.round(leads.filter(x=>x.status==='Won').length/leads.length*100):0;$('conversion').textContent=rate+'%';$('conversionbar').style.width=rate+'%';
+ const closed=leads.filter(x=>['Won','Lost'].includes(x.status)),rate=closed.length?Math.round(closed.filter(x=>x.status==='Won').length/closed.length*100):0;$('conversion').textContent=rate+'%';$('conversionbar').style.width=rate+'%';
  const recent=[...leads].sort((a,b)=>(b.updated||'').localeCompare(a.updated||'')).slice(0,6);
  $('recent').innerHTML=recent.length?`<table><thead><tr><th>Customer</th><th>Service</th><th>Status</th><th>Value</th></tr></thead><tbody>${recent.map(x=>`<tr><td><b>${esc(x.name)}</b><div class="small muted">${esc(x.email||x.phone||'No contact')}</div></td><td>${esc(x.service)}</td><td>${statusPill(x.status)}</td><td>${money(x.value)}</td></tr>`).join('')}</tbody></table>`:'<div class="empty">No leads yet. Add your first opportunity.</div>';
  $('next-actions').innerHTML=due.length?due.slice(0,5).map(x=>`<div class="task"><i class="dot ${x.followDate<today()?'late':''}"></i><div><strong>${esc(x.name)} · ${esc(x.service)}</strong><span>${x.followDate<today()?'Overdue':'Due today'} · ${esc(x.followDate)}</span></div></div>`).join(''):'<div class="empty">No follow-ups due.</div>';
 }
 function renderLeads(){
  const q=$('search').value.toLowerCase(),f=$('filter').value;
- const rows=leads.filter(x=>(f==='all'||x.status===f)&&[x.name,x.email,x.service,x.phone].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.updated||'').localeCompare(a.updated||''));
- $('lead-table').innerHTML=rows.length?`<table><thead><tr><th>Customer</th><th>Service</th><th>Status</th><th>Value</th><th>Next follow-up</th><th>Actions</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.name)}</b><div class="small muted">${esc(x.email||x.phone||'')}</div></td><td>${esc(x.service)}</td><td>${statusPill(x.status)}</td><td>${money(x.value)}</td><td>${esc(x.followDate||'—')}</td><td><div class="row-actions"><button class="linkbtn" onclick="editLead('${x.id}')">Edit</button><button class="linkbtn" onclick="draftMessage('${x.id}')">Draft</button></div></td></tr>`).join('')}</tbody></table>`:'<div class="empty">No matching leads.</div>';
+ const rows=leads.filter(x=>(f==='all'||x.status===f)&&[x.name,x.email,x.service,x.phone,x.source,x.notes].join(' ').toLowerCase().includes(q)).sort((a,b)=>(b.updated||'').localeCompare(a.updated||''));
+ $('lead-table').innerHTML=rows.length?`<table><thead><tr><th>Customer</th><th>Service</th><th>Status</th><th>Value</th><th>Next follow-up</th><th>Actions</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.name)}</b><div class="small muted">${esc(x.email||x.phone||'')}</div></td><td>${esc(x.service)}</td><td>${statusPill(x.status)}</td><td>${money(x.value)}</td><td>${esc(x.followDate||'—')}</td><td><div class="row-actions"><button class="linkbtn" onclick="editLead('${x.id}')">Edit</button><button class="linkbtn" onclick="draftMessage('${x.id}')">Draft</button><button class="linkbtn danger-link" onclick="deleteLead('${x.id}')">Delete</button></div></td></tr>`).join('')}</tbody></table>`:'<div class="empty">No matching leads.</div>';
 }
 function renderFollowups(){
  const rows=leads.filter(x=>x.followDate&&['New','Quote sent'].includes(x.status)).sort((a,b)=>a.followDate.localeCompare(b.followDate));
- $('follow-list').innerHTML=rows.length?rows.map(x=>`<div class="task"><i class="dot ${x.followDate<today()?'late':''}"></i><div style="flex:1"><strong>${esc(x.name)} — ${esc(x.service)}</strong><span>${x.followDate<today()?'Overdue':x.followDate===today()?'Due today':'Upcoming'} · ${esc(x.followDate)} · ${money(x.value)}</span><div style="margin-top:5px"><button class="linkbtn" onclick="draftMessage('${x.id}')">Prepare follow-up</button><button class="linkbtn" onclick="editLead('${x.id}')">Edit record</button><button class="linkbtn" onclick="completeFollow('${x.id}')">Mark contacted</button></div></div></div>`).join(''):'<div class="empty">No follow-ups scheduled. Add a next-action date to a lead.</div>';
+ $('follow-list').innerHTML=rows.length?rows.map(x=>`<div class="task"><i class="dot ${x.followDate<today()?'late':''}"></i><div style="flex:1"><strong>${esc(x.name)} — ${esc(x.service)}</strong><span>${x.followDate<today()?'Overdue':x.followDate===today()?'Due today':'Upcoming'} · ${esc(x.followDate)} · ${money(x.value)}</span><div style="margin-top:5px"><button class="linkbtn" onclick="draftMessage('${x.id}')">Prepare follow-up</button><button class="linkbtn" onclick="editLead('${x.id}')">Edit record</button><button class="linkbtn" onclick="completeFollow('${x.id}')">Mark contacted & reschedule</button></div></div></div>`).join(''):'<div class="empty">No follow-ups scheduled. Add a next-action date to a lead.</div>';
 }
-function openLead(){ $('lead-form').reset();$('lead-id').value='';$('modal-title').textContent='New lead';$('value').value=0;$('follow-date').value=addDays(Number(settings.interval)||2);$('modal').classList.add('show');}
+function openLead(){ $('lead-form').reset();$('lead-id').value='';$('modal-title').textContent='New lead';$('value').value=0;$('follow-date').value=addDays(Number(settings.interval)||2);$('modal').classList.add('show');setTimeout(()=>$('name').focus(),60);}
 function closeModal(){$('modal').classList.remove('show')}
-function addDays(n){let d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)}
-function saveLead(e){e.preventDefault();const id=$('lead-id').value||crypto.randomUUID();const old=leads.find(x=>x.id===id);const item={id,name:$('name').value.trim(),email:$('email').value.trim(),phone:$('phone').value.trim(),service:$('service').value.trim(),value:Number($('value').value)||0,status:$('status').value,followDate:$('follow-date').value,source:$('source').value,notes:$('notes').value.trim(),created:old?.created||new Date().toISOString(),updated:new Date().toISOString()};if(old)leads=leads.map(x=>x.id===id?item:x);else leads.push(item);persist();closeModal();renderOverview();renderLeads();renderFollowups();}
+function addDays(n){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+n);return dateKey(d)}
+function saveLead(e){e.preventDefault();const id=$('lead-id').value||crypto.randomUUID(),old=leads.find(x=>x.id===id),now=new Date().toISOString(),status=$('status').value;const item=normaliseLead({id,name:$('name').value.trim(),email:$('email').value.trim(),phone:$('phone').value.trim(),service:$('service').value.trim(),value:Number($('value').value)||0,status,followDate:$('follow-date').value,source:$('source').value,notes:$('notes').value.trim(),created:old?.created||now,updated:now,wonAt:status==='Won'?(old?.status==='Won'?(old.wonAt||now):now):'',lastContacted:old?.lastContacted||'',contactCount:old?.contactCount||0});if(!item){notify('Add a customer name and service requested.','error');return;}if(old)leads=leads.map(x=>x.id===id?item:x);else leads.push(item);persist();closeModal();renderOverview();renderLeads();renderFollowups();notify(old?'Lead updated.':'Lead saved.');}
 function editLead(id){const x=leads.find(a=>a.id===id);if(!x)return;openLead();$('modal-title').textContent='Edit lead';$('lead-id').value=x.id;for(const [k,v] of Object.entries({name:x.name,email:x.email,phone:x.phone,service:x.service,value:x.value,status:x.status,'follow-date':x.followDate,source:x.source,notes:x.notes}))$(k).value=v??'';}
-function completeFollow(id){const x=leads.find(a=>a.id===id);if(!x)return;x.followDate=addDays(Number(settings.interval)||2);x.updated=new Date().toISOString();persist();renderFollowups();renderOverview();}
-function draftMessage(id){const x=leads.find(a=>a.id===id);if(!x)return;const subject=encodeURIComponent(`Following up on your ${x.service} quote`);const body=encodeURIComponent(`Hi ${x.name},\n\nI’m following up on your request about ${x.service}. Please let me know if you have any questions or would like to discuss next steps.\n\nBest,\n${settings.bizname||'[Business name]'}`);if(x.email)window.location.href=`mailto:${encodeURIComponent(x.email)}?subject=${subject}&body=${body}`;else{navigator.clipboard?.writeText(decodeURIComponent(body));alert('No email is saved. A message draft was copied if clipboard access is available.');}}
-function exportCSV(){const cols=['name','email','phone','service','value','status','followDate','source','notes','created','updated'];const csv=[cols.join(','),...leads.map(x=>cols.map(k=>'"'+String(x[k]??'').replace(/"/g,'""')+'"').join(','))].join('\n');download('quoteflow-leads.csv',csv,'text/csv');}
-function exportJSON(){download('quoteflow-backup.json',JSON.stringify({leads,settings},null,2),'application/json')}
-function download(name,data,type){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([data],{type}));a.href=url;a.download=name;a.click();URL.revokeObjectURL(url)}
-function importJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!Array.isArray(d.leads))throw Error();leads=d.leads;settings=d.settings||{};persist();saveWorkspaceSettings();loadSettings();renderOverview();renderLeads();renderFollowups();alert('Backup imported.');}catch{alert('Could not import this backup file.');}};r.readAsText(f);}
-function saveSettings(){settings={bizname:$('bizname').value.trim(),bizemail:$('bizemail').value.trim(),interval:Math.max(1,Math.min(30,Number($('interval').value)||2))};saveWorkspaceSettings();alert('Settings saved.');}
+function deleteLead(id){const x=leads.find(a=>a.id===id);if(!x)return;if(!confirm(`Delete the lead for ${x.name}? This cannot be undone.`))return;leads=leads.filter(a=>a.id!==id);persist();renderOverview();renderLeads();renderFollowups();notify('Lead deleted.');}
+function completeFollow(id){const x=leads.find(a=>a.id===id);if(!x)return;x.lastContacted=new Date().toISOString();x.contactCount=(Number(x.contactCount)||0)+1;x.followDate=addDays(Number(settings.interval)||2);x.updated=new Date().toISOString();persist();renderFollowups();renderOverview();}
+function draftMessage(id){const x=leads.find(a=>a.id===id);if(!x)return;const subject=encodeURIComponent(`Following up on your ${x.service} quote`);const body=encodeURIComponent(`Hi ${x.name},\n\nI’m following up on your request about ${x.service}. Please let me know if you have any questions or would like to discuss next steps.\n\nBest,\n${settings.bizname||'[Business name]'}`);if(x.email)window.location.href=`mailto:${encodeURIComponent(x.email)}?subject=${subject}&body=${body}`;else{if(navigator.clipboard?.writeText){navigator.clipboard.writeText(decodeURIComponent(body)).then(()=>notify('Message draft copied to clipboard.'),()=>notify('No email is saved and clipboard access was blocked.','error'));}else notify('No email is saved. Add an email address to prepare a draft.','error');}}
+function csvCell(value){let v=String(value??'');if(/^[=+@\-\t\r]/.test(v))v="'"+v;return '"'+v.replace(/"/g,'""')+'"';}
+function exportCSV(){const cols=['name','email','phone','service','value','status','followDate','source','notes','created','updated','wonAt','lastContacted','contactCount'];const csv='\uFEFF'+[cols.join(','),...leads.map(x=>cols.map(k=>csvCell(x[k])).join(','))].join('\r\n');download('quoteflow-leads.csv',csv,'text/csv;charset=utf-8');notify('CSV export prepared.');}
+function exportJSON(){download('quoteflow-backup.json',JSON.stringify({version:2,exportedAt:new Date().toISOString(),leads,settings},null,2),'application/json');notify('Backup downloaded.');}
+function download(name,data,type){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([data],{type}));a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function importJSON(e){const f=e.target.files?.[0];if(!f)return;if(f.size>5*1024*1024){notify('Backup is larger than the 5 MB import limit.','error');e.target.value='';return;}const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||!Array.isArray(d.leads)||d.leads.length>10000)throw Error('Invalid backup structure');const cleaned=d.leads.map(normaliseLead).filter(Boolean);if(cleaned.length!==d.leads.length)throw Error('Some lead records are invalid');const prefs=d.settings&&typeof d.settings==='object'&&!Array.isArray(d.settings)?d.settings:{};if(!confirm(`Import ${cleaned.length} leads? This replaces the leads and settings in this workspace.`))return;leads=cleaned;settings={bizname:String(prefs.bizname||'').slice(0,100),bizemail:String(prefs.bizemail||'').slice(0,160),interval:Math.max(1,Math.min(30,Number(prefs.interval)||2))};persist();saveWorkspaceSettings();loadSettings();renderOverview();renderLeads();renderFollowups();notify('Backup imported successfully.');}catch(err){notify(err.message==='Some lead records are invalid'?'Backup contains invalid lead records.':'Could not import this backup. Check that it is a QuoteFlow JSON backup.','error');}finally{e.target.value='';}};r.onerror=()=>{notify('Could not read the selected file.','error');e.target.value='';};r.readAsText(f);}
+function saveSettings(){settings={bizname:$('bizname').value.trim(),bizemail:$('bizemail').value.trim(),interval:Math.max(1,Math.min(30,Number($('interval').value)||2))};saveWorkspaceSettings();notify('Settings saved.');}
 function loadSettings(){$('bizname').value=settings.bizname||'';$('bizemail').value=settings.bizemail||'';$('interval').value=settings.interval||2}
 function clearData(){if(confirm('Delete all QuoteFlow leads and settings from this browser? This cannot be undone.')){leads=[];settings={};persist();localStorage.removeItem(scopedKey(SETKEY));loadSettings();renderOverview();renderLeads();renderFollowups();}}
-function seedDemo(){if(leads.length&&!confirm('Add sample records to the existing records?'))return;const samples=[['Morgan Lee','morgan@example.com','204-555-0101','Biweekly home cleaning',240,'Quote sent',addDays(-1),'Website'],['Avery Chen','avery@example.com','204-555-0102','Move-out clean',390,'New',today(),'Referral'],['Taylor Brooks','taylor@example.com','204-555-0103','Office cleaning',650,'Won','', 'Email'],['Jordan Patel','jordan@example.com','204-555-0104','Deep clean',310,'Lost','', 'Phone']];samples.forEach(a=>leads.push({id:crypto.randomUUID(),name:a[0],email:a[1],phone:a[2],service:a[3],value:a[4],status:a[5],followDate:a[6],source:a[7],notes:'Sample record — replace with real information.',created:new Date().toISOString(),updated:new Date().toISOString()}));persist();renderOverview();renderLeads();renderFollowups();alert('Sample records added. Delete them before using the tool with real customer records.');}
+function seedDemo(){if(leads.length&&!confirm('Add sample records to the existing records?'))return;const samples=[['Morgan Lee','morgan@example.com','204-555-0101','Biweekly home cleaning',240,'Quote sent',addDays(-1),'Website'],['Avery Chen','avery@example.com','204-555-0102','Move-out clean',390,'New',today(),'Referral'],['Taylor Brooks','taylor@example.com','204-555-0103','Office cleaning',650,'Won','', 'Email'],['Jordan Patel','jordan@example.com','204-555-0104','Deep clean',310,'Lost','', 'Phone']];samples.forEach(a=>leads.push({id:crypto.randomUUID(),name:a[0],email:a[1],phone:a[2],service:a[3],value:a[4],status:a[5],followDate:a[6],source:a[7],notes:'Sample record — replace with real information.',created:new Date().toISOString(),updated:new Date().toISOString()}));persist();renderOverview();renderLeads();renderFollowups();notify('Sample records added. Remove them before entering real customer records.');}
 const revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('in-view');revealObserver.unobserve(entry.target);}}),{threshold:.12});
 function observeReveals(){document.querySelectorAll('.view.active .panel,.view.active .metric,.view.active .welcome-strip').forEach(el=>{el.classList.add('reveal');revealObserver.observe(el);});}
 const originalShowView=showView;showView=function(id){originalShowView(id);setTimeout(observeReveals,230);};
